@@ -24,19 +24,11 @@ def create_steering_control(packer, car_fingerprint, apply_steer, frame, steer_o
   return packer.make_can_msg("LKAS", 0, values)
 
 
-def create_acc_cancel_cmd(packer):
-  values = {
-    "NO_BUTTON_PRESSED": 0,
-    "CANCEL_BUTTON": 1,
-    "PROPILOT_BUTTON": 0,
-    "FOLLOW_DISTANCE_BUTTON": 0,
-    "SET_BUTTON": 0,
-    "RES_BUTTON": 0,
-    "GAS_PEDAL": 0,
-    "GAS_PEDAL_INVERTED": 0,
-    "unsure": 0,
-    "unsure2": 0,
-    "unsure3": 0,
-  }
+def create_acc_cmd(packer, cruise_cancel, cruise_throttle_msg):
+  values = copy.copy(cruise_throttle_msg)
 
+  if cruise_cancel:
+    values["NO_BUTTON_PRESSED"] = 0
+    values["CANCEL_BUTTON"] = 1
+  
   return packer.make_can_msg("CruiseThrottle", 2, values)
