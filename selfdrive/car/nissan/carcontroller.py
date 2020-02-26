@@ -64,8 +64,8 @@ class CarController(object):
       cruise_cancel = 1
 
     if cruise_cancel:
-      can_sends.append(nissancan.create_acc_cmd(
-          self.packer, cruise_cancel, cruise_throttle_msg))
+      can_sends.append(nissancan.create_acc_cancel_cmd(
+          self.packer, cruise_throttle_msg, frame))
 
     can_sends.append(nissancan.create_steering_control(
         self.packer, CS.CP.carFingerprint, apply_angle, frame, acc_active, self.lkas_max_torque))
