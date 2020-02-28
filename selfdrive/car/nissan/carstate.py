@@ -25,7 +25,7 @@ class CarState(CarStateBase):
     ret = car.CarState.new_message()
 
     ret.gas = cp.vl["Throttle"]["ThrottlePedal"]
-    ret.gasPressed = ret.gas > 0
+    ret.gasPressed = bool(ret.gas)
     ret.brakePressed = bool(cp.vl["DoorsLights"]["USER_BRAKE_PRESSED"])
     ret.brakeLights = bool(cp.vl["DoorsLights"]["BRAKE_LIGHT"])
 
@@ -40,11 +40,11 @@ class CarState(CarStateBase):
     ret.vEgo, ret.aEgo = self.update_speed_kf(ret.vEgoRaw)
     ret.standstill = ret.vEgoRaw < 0.01
 
-    ret.leftBlinker = cp.vl["Lights"]["LEFT_BLINKER"] == 1
-    ret.rightBlinker = cp.vl["Lights"]["RIGHT_BLINKER"] == 1
+    ret.leftBlinker = bool(cp.vl["Lights"]["LEFT_BLINKER"])
+    ret.rightBlinker = bool(cp.vl["Lights"]["RIGHT_BLINKER"])
     ret.seatbeltUnlatched = False
-    ret.cruiseState.enabled = cp_cam.vl["ProPilot"]["CRUISE_ACTIVATED"]
-    ret.cruiseState.available = cp_cam.vl["ProPilot"]["CRUISE_ON"]
+    ret.cruiseState.enabled = bool(cp_cam.vl["ProPilot"]["CRUISE_ACTIVATED"])
+    ret.cruiseState.available = bool(cp_cam.vl["ProPilot"]["CRUISE_ON"])
 
     ret.doorOpen = any([cp.vl["DoorsLights"]["DOOR_OPEN_RR"],
       cp.vl["DoorsLights"]["DOOR_OPEN_RL"],
