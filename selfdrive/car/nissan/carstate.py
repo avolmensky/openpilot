@@ -25,7 +25,7 @@ class CarState(CarStateBase):
     ret = car.CarState.new_message()
 
     ret.gas = cp.vl["Throttle"]["ThrottlePedal"]
-    ret.gasPressed = self.pedal_gas > 0
+    ret.gasPressed = ret.gas > 0
     ret.brakePressed = bool(cp.vl["DoorsLights"]["USER_BRAKE_PRESSED"])
     ret.brakeLights = bool(cp.vl["DoorsLights"]["BRAKE_LIGHT"])
 
@@ -34,7 +34,7 @@ class CarState(CarStateBase):
     ret.wheelSpeeds.rl = cp.vl["WheelspeedRear"]["RL"] * CV.KPH_TO_MS
     ret.wheelSpeeds.rr = cp.vl["WheelspeedRear"]["RR"] * CV.KPH_TO_MS
 
-    ret.vEgoRaw = (self.v_wheel_fl + self.v_wheel_fr + self.v_wheel_rl + self.v_wheel_rr) / 4.
+    ret.vEgoRaw = (ret.wheelSpeeds.fl + ret.wheelSpeeds.fr + ret.wheelSpeeds.rl + ret.wheelSpeeds.rr) / 4.
 
     # Kalman filter, even though Subaru raw wheel speed is heaviliy filtered by default
     ret.vEgo, ret.aEgo = self.update_speed_kf(ret.vEgoRaw)
