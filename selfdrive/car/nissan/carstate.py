@@ -1,10 +1,12 @@
 import copy
-from common.kalman.simple_kalman import KF1D
+from cereal import car
+from selfdrive.car.interfaces import CarStateBase
 from selfdrive.config import Conversions as CV
 from opendbc.can.parser import CANParser
 from selfdrive.car.nissan.values import DBC
 
-def get_powertrain_can_parser(CP):
+@staticmethod
+def get_can_parser(CP):
   # this function generates lists for signal, messages and initial values
   signals = [
     # sig_name, sig_address, default
@@ -46,7 +48,7 @@ def get_powertrain_can_parser(CP):
 
   return CANParser(DBC[CP.carFingerprint]['pt'], signals, checks, 0)
 
-
+@staticmethod
 def get_adas_can_parser(CP):
   # this function generates lists for signal, messages and initial values
   signals = [
@@ -65,7 +67,8 @@ def get_adas_can_parser(CP):
 
   return CANParser(DBC[CP.carFingerprint]['pt'], signals, checks, 2)
 
-def get_camera_can_parser(CP):
+@staticmethod
+def get_cam_can_parser(CP):
   signals = [
     ("CRUISE_ON", "ProPilot", 0),
     ("CRUISE_ACTIVATED", "ProPilot", 0),
@@ -77,12 +80,11 @@ def get_camera_can_parser(CP):
 
   return CANParser(DBC[CP.carFingerprint]['pt'], signals, checks, 1)
 
-class CarState(object):
+class CarState(CarStateBase):
   def __init__(self, CP):
     # initialize can parser
-    self.CP = CP
+    super().__init__(CP)
 
-    self.car_fingerprint = CP.carFingerprint
     self.left_blinker_on = False
     self.prev_left_blinker_on = False
     self.right_blinker_on = False
@@ -91,53 +93,42 @@ class CarState(object):
     self.steer_not_allowed = False
     self.main_on = False
 
-    # vEgo kalman filter
-    dt = 0.01
-    self.v_ego_kf = KF1D(x0=[[0.], [0.]],
-                         A=[[1., dt], [0., 1.]],
-                         C=[1., 0.],
-                         K=[[0.12287673], [0.29666309]])
     self.v_ego = 0.
 
   def update(self, cp, cp_adas, cp_cam):
+    ret = car.CarState.new_message()
 
-    self.pedal_gas = cp.vl["Throttle"]["ThrottlePedal"]
-    self.brake_pressure = 0
-    self.user_gas_pressed = self.pedal_gas > 0
-    self.brake_pressed = bool(cp.vl["DoorsLights"]["USER_BRAKE_PRESSED"])
-    self.brake_lights = bool(cp.vl["DoorsLights"]["BRAKE_LIGHT"])
+    ret.gas = cp.vl["Throttle"]["ThrottlePedal"]
+    ret.gasPressed = self.pedal_gas > 0
+    ret.brakePressed = bool(cp.vl["DoorsLights"]["USER_BRAKE_PRESSED"])
+    ret.brakeLights = bool(cp.vl["DoorsLights"]["BRAKE_LIGHT"])
 
-    self.v_wheel_fl = cp.vl["WheelspeedFront"]["FL"] * CV.KPH_TO_MS
-    self.v_wheel_fr = cp.vl["WheelspeedFront"]["FR"] * CV.KPH_TO_MS
-    self.v_wheel_rl = cp.vl["WheelspeedRear"]["RL"] * CV.KPH_TO_MS
-    self.v_wheel_rr = cp.vl["WheelspeedRear"]["RR"] * CV.KPH_TO_MS
+    ret.wheelSpeeds.fl = cp.vl["WheelspeedFront"]["FL"] * CV.KPH_TO_MS
+    ret.wheelSpeeds.fr = cp.vl["WheelspeedFront"]["FR"] * CV.KPH_TO_MS
+    ret.wheelSpeeds.rl = cp.vl["WheelspeedRear"]["RL"] * CV.KPH_TO_MS
+    ret.wheelSpeeds.rr = cp.vl["WheelspeedRear"]["RR"] * CV.KPH_TO_MS
 
-    self.v_cruise_pcm = 0
+    ret.vEgoRaw = (self.v_wheel_fl + self.v_wheel_fr + self.v_wheel_rl + self.v_wheel_rr) / 4.
 
-    v_wheel = (self.v_wheel_fl + self.v_wheel_fr + self.v_wheel_rl + self.v_wheel_rr) / 4.
-    # Kalman filter
-    if abs(v_wheel - self.v_ego) > 2.0:  # Prevent large accelerations when car starts at non zero speed
-      self.v_ego_kf.x = [[v_wheel], [0.0]]
+    # Kalman filter, even though Subaru raw wheel speed is heaviliy filtered by default
+    ret.vEgo, ret.aEgo = self.update_speed_kf(ret.vEgoRaw)
+    ret.standstill = ret.vEgoRaw < 0.01
 
-    self.v_ego_raw = v_wheel
-    v_ego_x = self.v_ego_kf.update(v_wheel)
+    ret.leftBlinker = cp.vl["Lights"]["LEFT_BLINKER"] == 1
+    ret.rightBlinker = cp.vl["Lights"]["RIGHT_BLINKER"] == 1
+    ret.seatbeltUnlatched = False
+    ret.cruiseState.enabled = cp_cam.vl["ProPilot"]["CRUISE_ACTIVATED"]
+    ret.cruiseState.available = cp_cam.vl["ProPilot"]["CRUISE_ON"]
 
-    self.v_ego = float(v_ego_x[0])
-    self.a_ego = float(v_ego_x[1])
-    self.standstill = self.v_ego_raw < 0.01
-    self.prev_left_blinker_on = self.left_blinker_on
-    self.prev_right_blinker_on = self.right_blinker_on
-    self.left_blinker_on = cp.vl["Lights"]["LEFT_BLINKER"] == 1
-    self.right_blinker_on = cp.vl["Lights"]["RIGHT_BLINKER"] == 1
-    self.seatbelt_unlatched = False
-    self.steer_torque_driver = cp.vl["Steering"]["DriverTorque"]
-    self.acc_active = cp_cam.vl["ProPilot"]["CRUISE_ACTIVATED"]
-    self.main_on = cp_cam.vl["ProPilot"]["CRUISE_ON"]
-    self.steer_on = cp_cam.vl["ProPilot"]["CRUISE_ACTIVATED"]
-    self.steer_override = bool(cp.vl["STEER_TORQUE"]["DriverTouchingWheel"])
-    self.angle_steers = cp.vl["SteeringWheel"]["Steering_Angle"]
-    self.cruise_throttle_msg = copy.copy(cp.vl["CruiseThrottle"])
-    self.door_open = any([cp.vl["DoorsLights"]["DOOR_OPEN_RR"],
+    ret.doorOpen = any([cp.vl["DoorsLights"]["DOOR_OPEN_RR"],
       cp.vl["DoorsLights"]["DOOR_OPEN_RL"],
       cp.vl["DoorsLights"]["DOOR_OPEN_FR"],
       cp.vl["DoorsLights"]["DOOR_OPEN_FL"]])
+
+    ret.steeringPressed = bool(cp.vl["STEER_TORQUE"]["DriverTouchingWheel"])
+    ret.steeringTorque = cp.vl["Steering"]["DriverTorque"]
+    ret.steeringAngle = cp.vl["SteeringWheel"]["Steering_Angle"]
+
+    self.cruise_throttle_msg = copy.copy(cp.vl["CruiseThrottle"])
+
+    return ret
