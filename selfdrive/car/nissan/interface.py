@@ -9,7 +9,7 @@ from selfdrive.car.interfaces import CarInterfaceBase
 class CarInterface(CarInterfaceBase):
   def __init__(self, CP, CarController, CarState):
     super().__init__(CP, CarController, CarState)
-    self.adas_cp = self.CS.get_adas_can_parser(CP)
+    self.cp_adas = self.CS.get_adas_can_parser(CP)
 
   @staticmethod
   def compute_gb(accel, speed):
@@ -72,13 +72,13 @@ class CarInterface(CarInterfaceBase):
 
   # returns a car.CarState
   def update(self, c, can_strings):
-    self.pt_cp.update_strings(can_strings)
-    self.cam_cp.update_strings(can_strings)
-    self.adas_cp.update_strings(can_strings)
+    self.cp.update_strings(can_strings)
+    self.cp_cam.update_strings(can_strings)
+    self.cp_adas.update_strings(can_strings)
 
-    ret = self.CS.update(self.pt_cp, self.adas_cp, self.cam_cp)
+    ret = self.CS.update(self.cp, self.cp_adas, self.cp_cam)
 
-    ret.canValid = self.pt_cp.can_valid and self.adas_cp.can_valid and self.cam_cp.can_valid
+    ret.canValid = self.cp.can_valid and self.cp_adas.can_valid and self.cp_cam.can_valid
     ret.yawRate = self.VM.yaw_rate(self.CS.angle_steers * CV.DEG_TO_RAD, self.CS.v_ego)
 
     buttonEvents = []
