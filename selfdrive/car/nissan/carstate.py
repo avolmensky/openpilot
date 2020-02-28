@@ -5,80 +5,6 @@ from selfdrive.config import Conversions as CV
 from opendbc.can.parser import CANParser
 from selfdrive.car.nissan.values import DBC
 
-@staticmethod
-def get_can_parser(CP):
-  # this function generates lists for signal, messages and initial values
-  signals = [
-    # sig_name, sig_address, default
-    ("FL", "WheelspeedFront", 0),
-    ("FR", "WheelspeedFront", 0),
-    ("RL", "WheelspeedRear", 0),
-    ("RR", "WheelspeedRear", 0),
-    ("DOOR_OPEN_FR", "DoorsLights", 1),
-    ("DOOR_OPEN_FL", "DoorsLights", 1),
-    ("DOOR_OPEN_RR", "DoorsLights", 1),
-    ("DOOR_OPEN_RL", "DoorsLights", 1),
-    ("USER_BRAKE_PRESSED", "DoorsLights", 1),
-    ("BRAKE_LIGHT", "DoorsLights", 1),
-    ("DriverTorque", "Steering", 0),
-    ("DriverTouchingWheel", "STEER_TORQUE", 0),
-    ("ThrottlePedal", "Throttle", 0),
-    ("Steering_Angle", "SteeringWheel", 0),
-    ("RIGHT_BLINKER", "Lights", 0),
-    ("LEFT_BLINKER", "Lights", 0),
-    ("PROPILOT_BUTTON", "CruiseThrottle", 0),
-    ("CANCEL_BUTTON", "CruiseThrottle", 0),
-    ("GAS_PEDAL_INVERTED", "CruiseThrottle", 0),
-    ("unsure2", "CruiseThrottle", 0),
-    ("SET_BUTTON", "CruiseThrottle", 0),
-    ("RES_BUTTON", "CruiseThrottle", 0),
-    ("FOLLOW_DISTANCE_BUTTON", "CruiseThrottle", 0),
-    ("NO_BUTTON_PRESSED", "CruiseThrottle", 0),
-    ("GAS_PEDAL", "CruiseThrottle", 0),
-    ("unsure3", "CruiseThrottle", 0),
-    ("unsure", "CruiseThrottle", 0),
-  ]
-
-  checks = [
-    # sig_address, frequency
-    ("WheelspeedRear", 50),
-    ("WheelspeedFront", 50),
-    ("DoorsLights", 10),
-  ]
-
-  return CANParser(DBC[CP.carFingerprint]['pt'], signals, checks, 0)
-
-@staticmethod
-def get_adas_can_parser(CP):
-  # this function generates lists for signal, messages and initial values
-  signals = [
-    # sig_name, sig_address, default
-    ("Des_Angle", "LKAS", 0),
-    ("SET_0x80_2", "LKAS", 0),
-    ("NEW_SIGNAL_4", "LKAS", 0),
-    ("SET_X80", "LKAS", 0),
-    ("Counter", "LKAS", 0),
-    ("LKA_Active", "LKAS", 0),
-  ]
-
-  checks = [
-    # sig_address, frequency
-  ]
-
-  return CANParser(DBC[CP.carFingerprint]['pt'], signals, checks, 2)
-
-@staticmethod
-def get_cam_can_parser(CP):
-  signals = [
-    ("CRUISE_ON", "ProPilot", 0),
-    ("CRUISE_ACTIVATED", "ProPilot", 0),
-    ("STEER_STATUS", "ProPilot", 0),
-  ]
-
-  checks = [
-  ]
-
-  return CANParser(DBC[CP.carFingerprint]['pt'], signals, checks, 1)
 
 class CarState(CarStateBase):
   def __init__(self, CP):
@@ -132,3 +58,78 @@ class CarState(CarStateBase):
     self.cruise_throttle_msg = copy.copy(cp.vl["CruiseThrottle"])
 
     return ret
+
+  @staticmethod
+  def get_can_parser(CP):
+    # this function generates lists for signal, messages and initial values
+    signals = [
+      # sig_name, sig_address, default
+      ("FL", "WheelspeedFront", 0),
+      ("FR", "WheelspeedFront", 0),
+      ("RL", "WheelspeedRear", 0),
+      ("RR", "WheelspeedRear", 0),
+      ("DOOR_OPEN_FR", "DoorsLights", 1),
+      ("DOOR_OPEN_FL", "DoorsLights", 1),
+      ("DOOR_OPEN_RR", "DoorsLights", 1),
+      ("DOOR_OPEN_RL", "DoorsLights", 1),
+      ("USER_BRAKE_PRESSED", "DoorsLights", 1),
+      ("BRAKE_LIGHT", "DoorsLights", 1),
+      ("DriverTorque", "Steering", 0),
+      ("DriverTouchingWheel", "STEER_TORQUE", 0),
+      ("ThrottlePedal", "Throttle", 0),
+      ("Steering_Angle", "SteeringWheel", 0),
+      ("RIGHT_BLINKER", "Lights", 0),
+      ("LEFT_BLINKER", "Lights", 0),
+      ("PROPILOT_BUTTON", "CruiseThrottle", 0),
+      ("CANCEL_BUTTON", "CruiseThrottle", 0),
+      ("GAS_PEDAL_INVERTED", "CruiseThrottle", 0),
+      ("unsure2", "CruiseThrottle", 0),
+      ("SET_BUTTON", "CruiseThrottle", 0),
+      ("RES_BUTTON", "CruiseThrottle", 0),
+      ("FOLLOW_DISTANCE_BUTTON", "CruiseThrottle", 0),
+      ("NO_BUTTON_PRESSED", "CruiseThrottle", 0),
+      ("GAS_PEDAL", "CruiseThrottle", 0),
+      ("unsure3", "CruiseThrottle", 0),
+      ("unsure", "CruiseThrottle", 0),
+    ]
+
+    checks = [
+      # sig_address, frequency
+      ("WheelspeedRear", 50),
+      ("WheelspeedFront", 50),
+      ("DoorsLights", 10),
+    ]
+
+    return CANParser(DBC[CP.carFingerprint]['pt'], signals, checks, 0)
+
+  @staticmethod
+  def get_adas_can_parser(CP):
+    # this function generates lists for signal, messages and initial values
+    signals = [
+      # sig_name, sig_address, default
+      ("Des_Angle", "LKAS", 0),
+      ("SET_0x80_2", "LKAS", 0),
+      ("NEW_SIGNAL_4", "LKAS", 0),
+      ("SET_X80", "LKAS", 0),
+      ("Counter", "LKAS", 0),
+      ("LKA_Active", "LKAS", 0),
+    ]
+
+    checks = [
+      # sig_address, frequency
+    ]
+
+    return CANParser(DBC[CP.carFingerprint]['pt'], signals, checks, 2)
+
+  @staticmethod
+  def get_cam_can_parser(CP):
+    signals = [
+      ("CRUISE_ON", "ProPilot", 0),
+      ("CRUISE_ACTIVATED", "ProPilot", 0),
+      ("STEER_STATUS", "ProPilot", 0),
+    ]
+
+    checks = [
+    ]
+
+    return CANParser(DBC[CP.carFingerprint]['pt'], signals, checks, 1)
