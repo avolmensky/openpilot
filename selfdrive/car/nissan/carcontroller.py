@@ -1,6 +1,5 @@
 from common.numpy_fast import clip, interp
 from selfdrive.car.nissan import nissancan
-from selfdrive.car.nissan.values import DBC
 from opendbc.can.packer import CANPacker
 
 # Steer angle limits
@@ -12,13 +11,14 @@ ANGLE_DELTA_VU = [5., 3.5, 0.4]   # unwind limit
 LKAS_MAX_TORQUE = 100             # A value of 100 is easy to overpower
 
 
-class CarController(object):
-  def __init__(self, car_fingerprint):
-    self.car_fingerprint = car_fingerprint
+class CarController():
+  def __init__(self, dbc_name, CP, VM):
+    self.car_fingerprint = CP.carFingerprint
+
     self.lkas_max_torque = 0
     self.last_angle = 0
 
-    self.packer = CANPacker(DBC[car_fingerprint]['pt'])
+    self.packer = CANPacker(dbc_name)
 
   def update(self, enabled, CS, frame, actuators, cruise_cancel):
     """ Controls thread """
@@ -68,6 +68,6 @@ class CarController(object):
           self.packer, cruise_throttle_msg, frame))
 
     can_sends.append(nissancan.create_steering_control(
-        self.packer, CS.CP.carFingerprint, apply_angle, frame, acc_active, self.lkas_max_torque))
+        self.packer, self.car_fingerprint, apply_angle, frame, acc_active, self.lkas_max_torque))
 
     return can_sends
