@@ -57,7 +57,7 @@ class CarState(CarStateBase):
 
     self.cruise_throttle_msg = copy.copy(cp.vl["CruiseThrottle"])
 
-    ret.espDisabled = False
+    # ret.espDisabled = False
 
     return ret
 
