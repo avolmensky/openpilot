@@ -27,34 +27,34 @@ class CarController():
     can_sends = []
 
     ### STEER ###
-    acc_active = bool(CS.acc_active)
+    acc_active = bool(CS.out.cruiseState.enabled)
     cruise_throttle_msg = CS.cruise_throttle_msg
     apply_angle = actuators.steerAngle
 
     if acc_active:
       # # windup slower
       if self.last_angle * apply_angle > 0. and abs(apply_angle) > abs(self.last_angle):
-        angle_rate_lim = interp(CS.v_ego, ANGLE_DELTA_BP, ANGLE_DELTA_V)
+        angle_rate_lim = interp(CS.out.vEgo, ANGLE_DELTA_BP, ANGLE_DELTA_V)
       else:
-        angle_rate_lim = interp(CS.v_ego, ANGLE_DELTA_BP, ANGLE_DELTA_VU)
+        angle_rate_lim = interp(CS.out.vEgo, ANGLE_DELTA_BP, ANGLE_DELTA_VU)
 
       apply_angle = clip(apply_angle, self.last_angle -
                          angle_rate_lim, self.last_angle + angle_rate_lim)
 
       # steer angle
-      angle_lim = interp(CS.v_ego, ANGLE_MAX_BP, ANGLE_MAX_V)
+      angle_lim = interp(CS.out.vEgo, ANGLE_MAX_BP, ANGLE_MAX_V)
       apply_angle = clip(apply_angle, -angle_lim, angle_lim)
 
       # Max torque from driver before EPS will give up and not apply torque
-      if not bool(CS.steer_override):
+      if not bool(CS.out.steeringPressed):
         self.lkas_max_torque = LKAS_MAX_TORQUE
       else:
         # Scale max torque based on how much torque the driver is applying to the wheel
         self.lkas_max_torque = max(
-            0, LKAS_MAX_TORQUE - 0.4 * abs(CS.steer_torque_driver))
+            0, LKAS_MAX_TORQUE - 0.4 * abs(CS.out.steeringTorque))
 
     else:
-      apply_angle = CS.angle_steers
+      apply_angle = CS.out.steeringAngle
       self.lkas_max_torque = 0
 
     self.last_angle = apply_angle
