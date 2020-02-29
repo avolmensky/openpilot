@@ -55,9 +55,8 @@ class CarState(CarStateBase):
     ret.steeringTorque = cp.vl["Steering"]["DriverTorque"]
     ret.steeringAngle = cp.vl["SteeringWheel"]["Steering_Angle"]
 
+    self.acc_active = bool(cp_cam.vl["ProPilot"]["CRUISE_ACTIVATED"])
     self.cruise_throttle_msg = copy.copy(cp.vl["CruiseThrottle"])
-
-    # ret.espDisabled = False
 
     return ret
 
