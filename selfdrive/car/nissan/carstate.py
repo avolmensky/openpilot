@@ -40,13 +40,13 @@ class CarState(CarStateBase):
     ret.vEgo, ret.aEgo = self.update_speed_kf(ret.vEgoRaw)
     ret.standstill = ret.vEgoRaw < 0.01
 
-    # TODO: Work out gear shifter imessage
+    # TODO: Work out gear shifter message
     ret.gearShifter = self.parse_gear_shifter("D")
 
     ret.leftBlinker = bool(cp.vl["Lights"]["LEFT_BLINKER"])
     ret.rightBlinker = bool(cp.vl["Lights"]["RIGHT_BLINKER"])
-    # TODO: Work out Seatbelt message
-    ret.seatbeltUnlatched = False
+
+    ret.seatbeltUnlatched = cp.vl["_SEATBELT"]["DRIVERS_SEATBELT"] == 0
     ret.cruiseState.enabled = bool(cp_cam.vl["ProPilot"]["CRUISE_ACTIVATED"])
     ret.cruiseState.available = bool(cp_cam.vl["ProPilot"]["CRUISE_ON"])
 
@@ -58,6 +58,8 @@ class CarState(CarStateBase):
     ret.steeringPressed = bool(cp.vl["STEER_TORQUE"]["DriverTouchingWheel"])
     ret.steeringTorque = cp.vl["Steering"]["DriverTorque"]
     ret.steeringAngle = cp.vl["SteeringWheel"]["Steering_Angle"]
+
+    ret.espDisabled = cp.vl["_ESP"]["ESP_DISABLED"]
 
     self.cruise_throttle_msg = copy.copy(cp.vl["CruiseThrottle"])
 
@@ -95,6 +97,9 @@ class CarState(CarStateBase):
       ("GAS_PEDAL", "CruiseThrottle", 0),
       ("unsure3", "CruiseThrottle", 0),
       ("unsure", "CruiseThrottle", 0),
+      ("DRIVERS_SEATBELT", "_SEATBELT", 0),
+      ("ESP_DISABLED", "_ESP", 0),
+      ("GEAR", "_GEAR", 0),
     ]
 
     checks = [
