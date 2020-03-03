@@ -61,7 +61,7 @@ class CarState(CarStateBase):
     ret.steeringTorque = cp.vl["Steering"]["DriverTorque"]
     ret.steeringAngle = cp.vl["SteeringWheel"]["Steering_Angle"]
 
-    ret.espDisabled = cp.vl["_ESP"]["ESP_DISABLED"]
+    ret.espDisabled = bool(cp.vl["_ESP"]["ESP_DISABLED"])
 
     self.cruise_throttle_msg = copy.copy(cp.vl["CruiseThrottle"])
 
