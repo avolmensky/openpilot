@@ -1,5 +1,6 @@
 import copy
 from cereal import car
+from opendbc.can.can_define import CANDefine
 from selfdrive.car.interfaces import CarStateBase
 from selfdrive.config import Conversions as CV
 from opendbc.can.parser import CANParser
@@ -8,8 +9,9 @@ from selfdrive.car.nissan.values import DBC
 
 class CarState(CarStateBase):
   def __init__(self, CP):
-    # initialize can parser
     super().__init__(CP)
+    can_define = CANDefine(DBC[CP.carFingerprint]['pt'])
+    self.shifter_values = can_define.dv["GEARBOX"]["GEAR_SHIFTER"]
 
     self.left_blinker_on = False
     self.prev_left_blinker_on = False
@@ -40,8 +42,8 @@ class CarState(CarStateBase):
     ret.vEgo, ret.aEgo = self.update_speed_kf(ret.vEgoRaw)
     ret.standstill = ret.vEgoRaw < 0.01
 
-    # TODO: Work out gear shifter message
-    ret.gearShifter = self.parse_gear_shifter("D")
+    can_gear = int(cp.vl["GEARBOX"]["GEAR_SHIFTER"])
+    ret.gearShifter = self.parse_gear_shifter(self.shifter_values.get(can_gear, None))
 
     ret.leftBlinker = bool(cp.vl["Lights"]["LEFT_BLINKER"])
     ret.rightBlinker = bool(cp.vl["Lights"]["RIGHT_BLINKER"])
@@ -99,7 +101,7 @@ class CarState(CarStateBase):
       ("unsure", "CruiseThrottle", 0),
       ("DRIVERS_SEATBELT", "_SEATBELT", 0),
       ("ESP_DISABLED", "_ESP", 0),
-      ("GEAR", "_GEAR", 0),
+      ("GEAR_SHIFTER", "GEARBOX", 0),
     ]
 
     checks = [
