@@ -109,12 +109,12 @@ class CarState(CarStateBase):
     # this function generates lists for signal, messages and initial values
     signals = [
       # sig_name, sig_address, default
-      ("Des_Angle", "LKAS", 0),
+      ("DESIRED_ANGLE", "LKAS", 0),
       ("SET_0x80_2", "LKAS", 0),
-      ("NEW_SIGNAL_4", "LKAS", 0),
-      ("SET_X80", "LKAS", 0),
-      ("Counter", "LKAS", 0),
-      ("LKA_Active", "LKAS", 0),
+      ("MAX_TORQUE", "LKAS", 0),
+      ("SET_0x80", "LKAS", 0),
+      ("COUNTER", "LKAS", 0),
+      ("LKA_ACTIVE", "LKAS", 0),
     ]
 
     checks = [
