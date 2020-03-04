@@ -13,15 +13,6 @@ class CarState(CarStateBase):
     can_define = CANDefine(DBC[CP.carFingerprint]['pt'])
     self.shifter_values = can_define.dv["GEARBOX"]["GEAR_SHIFTER"]
 
-    self.left_blinker_on = False
-    self.prev_left_blinker_on = False
-    self.right_blinker_on = False
-    self.prev_right_blinker_on = False
-    self.steer_torque_driver = 0
-    self.steer_not_allowed = False
-    self.main_on = False
-
-    self.v_ego = 0.
 
   def update(self, cp, cp_adas, cp_cam):
     ret = car.CarState.new_message()
