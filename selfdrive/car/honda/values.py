@@ -130,7 +130,7 @@ FINGERPRINTS = {
 }
 
 # Don't use theses fingerprints for fingerprinting, they are still needed for ECU detection
-IGNORED_FINGERPRINTS = [CAR.INSIGHT]
+IGNORED_FINGERPRINTS = [CAR.INSIGHT, CAR.CIVIC_BOSCH_DIESEL]
 
 # add DIAG_MSGS to fingerprints
 for c in FINGERPRINTS:
@@ -359,6 +359,7 @@ FW_VERSIONS = {
       b'37805-5AN-LJ20\x00\x00',
       b'37805-5AZ-E850\x00\x00',
       b'37805-5BB-L640\x00\x00',
+      b'37805-5AN-AH20\x00\x00',
     ],
     (Ecu.transmission, 0x18da1ef1, None): [
       b'28101-5CG-A920\x00\x00',
