@@ -66,7 +66,8 @@ class CarController():
       cruise_cancel = 1
 
     if self.CP.carFingerprint == CAR.XTRAIL and cruise_cancel:
-        can_sends.append(nissancan.create_acc_cancel_cmd(self.packer, CS.cruise_throttle_msg, frame))
+      for i in range(4):
+        can_sends.append(nissancan.create_acc_cancel_cmd(self.packer, CS.cruise_throttle_msg, i))
 
     # TODO: Find better way to cancel!
     # For some reason spamming the cancel button is unreliable on the Leaf
