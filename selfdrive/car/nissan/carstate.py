@@ -147,6 +147,7 @@ class CarState(CarStateBase):
         ("USER_BRAKE_PRESSED", "CRUISE_THROTTLE", 0),
         ("NEW_SIGNAL_2", "CRUISE_THROTTLE", 0),
         ("GAS_PRESSED_INVERTED", "CRUISE_THROTTLE", 0),
+        ("COUNTER", "CRUISE_THROTTLE", 0),
         ("unsure1", "CRUISE_THROTTLE", 0),
         ("unsure2", "CRUISE_THROTTLE", 0),
         ("unsure3", "CRUISE_THROTTLE", 0),
