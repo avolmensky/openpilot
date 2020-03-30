@@ -161,8 +161,17 @@ class CarState(CarStateBase):
       signals += [
         ("BRAKE_PEDAL", "BRAKE_PEDAL", 0),
 
+        ("GAS_PEDAL_INVERTED", "CRUISE_THROTTLE", 0),
         ("GAS_PEDAL", "CRUISE_THROTTLE", 0),
         ("CRUISE_AVAILABLE", "CRUISE_THROTTLE", 0),
+        ("COUNTER", "CRUISE_THROTTLE", 0),
+        ("unsure1", "CRUISE_THROTTLE", 0),
+        ("unsure2", "CRUISE_THROTTLE", 0),
+        ("unsure3", "CRUISE_THROTTLE", 0),
+        ("unsure4", "CRUISE_THROTTLE", 0),
+        ("unsure5", "CRUISE_THROTTLE", 0),
+        ("unsure6", "CRUISE_THROTTLE", 0),
+        ("unsure7", "CRUISE_THROTTLE", 0),
         ("SPEED_MPH", "HUD_SETTINGS", 0),
 
         # Copy other values, we use this to cancel
