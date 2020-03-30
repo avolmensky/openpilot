@@ -65,16 +65,16 @@ class CarController():
       # send acc cancel cmd if drive is disabled but pcm is still on, or if the system can't be activated
       cruise_cancel = 1
 
-    if self.CP.carFingerprint == CAR.XTRAIL and cruise_cancel:
+    if cruise_cancel:
       for i in range(4):
         can_sends.append(nissancan.create_acc_cancel_cmd(self.packer, CS.cruise_throttle_msg, i))
 
-    # TODO: Find better way to cancel!
-    # For some reason spamming the cancel button is unreliable on the Leaf
-    # We now cancel by making propilot think the seatbelt is unlatched,
-    # this generates a beep and a warning message every time you disengage
-    if self.CP.carFingerprint == CAR.LEAF and frame % 2 == 0:
-        can_sends.append(nissancan.create_cancel_msg(self.packer, CS.cancel_msg, cruise_cancel))
+    # # TODO: Find better way to cancel!
+    # # For some reason spamming the cancel button is unreliable on the Leaf
+    # # We now cancel by making propilot think the seatbelt is unlatched,
+    # # this generates a beep and a warning message every time you disengage
+    # if self.CP.carFingerprint == CAR.LEAF and frame % 2 == 0:
+    #     can_sends.append(nissancan.create_cancel_msg(self.packer, CS.cancel_msg, cruise_cancel))
 
     can_sends.append(nissancan.create_steering_control(
         self.packer, self.car_fingerprint, apply_angle, frame, enabled, self.lkas_max_torque))
